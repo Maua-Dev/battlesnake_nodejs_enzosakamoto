@@ -5,9 +5,9 @@ export function moveHandler(req: Request, res: Response) {
     res.json({
       apiversion: '1',
       author: 'Enzo Sakamoto',
-      color: '#8B0000',
-      head: 'tiger-king',
-      tail: 'hook',
+      color: '#FC2DCC',
+      head: 'replit-mark',
+      tail: 'replit-notmark',
       version: '1.0.0'
     })
   } catch (error) {
