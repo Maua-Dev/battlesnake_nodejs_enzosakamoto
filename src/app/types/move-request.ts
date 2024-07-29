@@ -1,3 +1,5 @@
+import { Point } from './point'
+
 export type MoveRequestBody = {
   game: {
     id: string
@@ -6,14 +8,14 @@ export type MoveRequestBody = {
   board: {
     height: number
     width: number
-    food: Array<{ x: number; y: number }>
-    hazards: Array<{ x: number; y: number }>
+    food: Array<Point>
+    hazards: Array<Point>
     snakes: Array<{
       id: string
       name: string
       health: number
-      body: Array<{ x: number; y: number }>
-      head: { x: number; y: number }
+      body: Array<Point>
+      head: Point
       length: number
     }>
   }
@@ -21,8 +23,8 @@ export type MoveRequestBody = {
     id: string
     name: string
     health: number
-    body: Array<{ x: number; y: number }>
-    head: { x: number; y: number }
+    body: Array<Point>
+    head: Point
     length: number
   }
 }
