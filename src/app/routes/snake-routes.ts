@@ -3,6 +3,7 @@ import { moveHandler } from '../handlers/move-handler'
 import { MoveRequestBody } from '../types/move-request'
 import { MoveResponseBody } from '../types/move-response'
 import { MOVE } from '../types/move'
+import { Point } from '../types/point'
 
 export const router = Router()
 
@@ -16,14 +17,9 @@ router.post(
   ) => {
     const { board, you } = req.body
 
-    /*
-      Estou no (1,1)
-      Possíveis:
-        - (1,0)
-        - (0,1)
-        - (1,2)
-        - (2,1)
-    */
+    const busyPoints = board.snakes.reduce<Point[]>((acc, snake) => {
+      return acc.concat(snake.body)
+    }, [])
 
     const possibleMoves = [
       { move: MOVE.DOWN, x: you.head.x, y: you.head.y - 1 },
@@ -40,14 +36,18 @@ router.post(
       )
       .filter((move) => {
         let willColid = false
-        for (let i = 0; i < you.body.length; i++)
-          if (move.x === you.body[i].x && move.y === you.body[i].y)
-            willColid = true
+        for (const body of you.body)
+          if (move.x === body.x && move.y === body.y) willColid = true
 
         return !willColid
       })
+      .filter((move) => {
+        let willColid = false
+        for (const busy of busyPoints)
+          if (move.x === busy.x && move.y === busy.y) willColid = true
 
-    console.log(possibleMoves)
+        return !willColid
+      })
 
     const i = Math.floor(Math.random() * possibleMoves.length)
 
