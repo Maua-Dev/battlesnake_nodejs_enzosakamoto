@@ -21,6 +21,8 @@ router.post(
       return acc.concat(snake.body)
     }, [])
 
+    busyPoints.push(...board.hazards)
+
     const possibleMoves = [
       { move: MOVE.DOWN, x: you.head.x, y: you.head.y - 1 },
       { move: MOVE.LEFT, x: you.head.x - 1, y: you.head.y },
@@ -52,7 +54,7 @@ router.post(
     const i = Math.floor(Math.random() * possibleMoves.length)
 
     const response = {
-      move: possibleMoves[i].move,
+      move: possibleMoves ? possibleMoves[i].move : MOVE.DOWN,
       shout: `I'm moving ${possibleMoves[i].move}!`
     }
     res.json(response)
