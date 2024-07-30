@@ -1,30 +1,11 @@
-import { Point } from './point'
+import { Board } from './board'
+import { Snake } from './snake'
 
 export type MoveRequestBody = {
   game: {
     id: string
   }
   turn: number
-  board: {
-    height: number
-    width: number
-    food: Array<Point>
-    hazards: Array<Point>
-    snakes: Array<{
-      id: string
-      name: string
-      health: number
-      body: Array<Point>
-      head: Point
-      length: number
-    }>
-  }
-  you: {
-    id: string
-    name: string
-    health: number
-    body: Array<Point>
-    head: Point
-    length: number
-  }
+  board: Board
+  you: Snake
 }
