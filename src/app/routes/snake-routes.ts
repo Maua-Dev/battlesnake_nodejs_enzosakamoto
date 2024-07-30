@@ -4,6 +4,8 @@ import { MoveRequestBody } from '../types/move-request'
 import { MoveResponseBody } from '../types/move-response'
 import { MOVE } from '../types/move'
 import { Point } from '../types/point'
+import { foodHeuristic } from '../algorithms/food-heuristic'
+import { pathfinding } from '../algorithms/pathfinding'
 
 export const router = Router()
 
@@ -50,6 +52,17 @@ router.post(
 
         return !willColid
       })
+
+    const minDistanceToFood = foodHeuristic(you.head, board)
+    const path = pathfinding(you.head, minDistanceToFood)
+
+    if (possibleMoves && possibleMoves.some((move) => move.move === path)) {
+      const response = {
+        move: path,
+        shout: `I'm moving ${path}!`
+      }
+      res.json(response)
+    }
 
     const i = Math.floor(Math.random() * possibleMoves.length)
 
