@@ -1,7 +1,7 @@
 import { Board } from '../types/board'
 import { Point } from '../types/point'
 
-export const foodHeuristic = (start: Point, board: Board): Point => {
+export const getFoodHeuristic = (start: Point, board: Board): Point => {
   const { food } = board
   const distances = food.map((food) => {
     return Math.abs(food.x - start.x) + Math.abs(food.y - start.y)

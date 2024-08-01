@@ -1,11 +1,13 @@
+import { getBestMove } from '../algorithms/get-best-move'
 import { Router, Request, Response } from 'express'
 import { moveHandler } from '../handlers/move-handler'
 import { MoveRequestBody } from '../types/move-request'
 import { MoveResponseBody } from '../types/move-response'
 import { MOVE } from '../types/move'
-import { Point } from '../types/point'
-import { foodHeuristic } from '../algorithms/food-heuristic'
+import { getFoodHeuristic } from '../algorithms/get-food-heuristic'
 import { pathfinding } from '../algorithms/pathfinding'
+import { getNeighbors } from '../algorithms/get-neighbors'
+import { isPointInvalid } from '../algorithms/is-point-invalid'
 
 export const router = Router()
 
@@ -19,56 +21,31 @@ router.post(
   ) => {
     const { board, you } = req.body
 
-    const busyPoints = board.snakes.reduce<Point[]>((acc, snake) => {
-      return acc.concat(snake.body)
-    }, [])
+    let move: MOVE = MOVE.UP
 
-    busyPoints.push(...board.hazards)
-
-    const possibleMoves = [
-      { move: MOVE.DOWN, x: you.head.x, y: you.head.y - 1 },
-      { move: MOVE.LEFT, x: you.head.x - 1, y: you.head.y },
-      { move: MOVE.UP, x: you.head.x, y: you.head.y + 1 },
-      { move: MOVE.RIGHT, x: you.head.x + 1, y: you.head.y }
-    ]
-      .filter(
-        (move) =>
-          move.x < board.width &&
-          move.x >= 0 &&
-          move.y < board.height &&
-          move.y >= 0
-      )
-      .filter((move) => {
-        let willColid = false
-        for (const body of you.body)
-          if (move.x === body.x && move.y === body.y) willColid = true
-
-        return !willColid
-      })
-      .filter((move) => {
-        let willColid = false
-        for (const busy of busyPoints)
-          if (move.x === busy.x && move.y === busy.y) willColid = true
-
-        return !willColid
-      })
-
-    const minDistanceToFood = foodHeuristic(you.head, board)
-    const path = pathfinding(you.head, minDistanceToFood)
-
-    if (possibleMoves && possibleMoves.some((move) => move.move === path)) {
-      const response = {
-        move: path,
-        shout: `I'm moving ${path}!`
+    if (you.health <= 80) {
+      const minDistanceToFood = getFoodHeuristic(you.head, board)
+      const path = pathfinding(you.head, minDistanceToFood)
+      const neighbors = getNeighbors(you.head, board)
+      if (neighbors) {
+        for (const neighbor of neighbors) {
+          if (neighbor.move === path && !isPointInvalid(neighbor, board)) {
+            move = path
+            break
+          } else {
+            move = getBestMove(you.head, board)
+          }
+        }
+      } else {
+        move = getBestMove(you.head, board)
       }
-      res.json(response)
+    } else {
+      move = getBestMove(you.head, board)
     }
 
-    const i = Math.floor(Math.random() * possibleMoves.length)
-
     const response = {
-      move: possibleMoves ? possibleMoves[i].move : MOVE.DOWN,
-      shout: `I'm moving ${possibleMoves[i].move}!`
+      move: move,
+      shout: `I'm moving ${move}!`
     }
     res.json(response)
   }
