@@ -1,10 +1,13 @@
 import { Board } from '../types/board'
 import { MOVE } from '../types/move'
 import { Point } from '../types/point'
+import { Snake } from '../types/snake'
 import { getFreeSpace } from './get-free-space'
 import { isPointInvalid } from './is-point-invalid'
+import { willLoseHeadToHead } from './will-lose-head-to-head'
 
-export const getBestMove = (start: Point, board: Board): MOVE => {
+export const getBestMove = (you: Snake, board: Board): MOVE => {
+  const start = you.head
   const possibleMoves = Object.values(MOVE)
   let bestMove = 'up'
   let maxFreeSpace = -1
@@ -27,7 +30,10 @@ export const getBestMove = (start: Point, board: Board): MOVE => {
         break
     }
 
-    if (!isPointInvalid(nextPosition, board)) {
+    if (
+      !isPointInvalid(nextPosition, board) &&
+      !willLoseHeadToHead(you, board, nextPosition)
+    ) {
       const freeSpace = getFreeSpace(nextPosition, board)
 
       if (freeSpace > maxFreeSpace) {
