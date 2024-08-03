@@ -8,6 +8,8 @@ import { getFoodHeuristic } from '../algorithms/get-food-heuristic'
 import { pathfinding } from '../algorithms/pathfinding'
 import { getNeighbors } from '../algorithms/get-neighbors'
 import { isPointInvalid } from '../algorithms/is-point-invalid'
+import { willLoseHeadToHead } from '../algorithms/will-lose-head-to-head'
+// import { getNextMove } from '../algorithms/get-next-move'
 
 export const router = Router()
 
@@ -23,24 +25,29 @@ router.post(
 
     let move: MOVE = MOVE.UP
 
-    if (you.health <= 80) {
-      const minDistanceToFood = getFoodHeuristic(you.head, board)
-      const path = pathfinding(you.head, minDistanceToFood)
+    if (you.health <= 98) {
+      const closestFood = getFoodHeuristic(you.head, board)
+      const path = pathfinding(you.head, closestFood)
+      // const nextMove = getNextMove(you.head, closestFood, board, you)
       const neighbors = getNeighbors(you.head, board)
       if (neighbors) {
         for (const neighbor of neighbors) {
-          if (neighbor.move === path && !isPointInvalid(neighbor, board)) {
+          if (
+            neighbor.move === path &&
+            !isPointInvalid(neighbor, board) &&
+            !willLoseHeadToHead(you, board, neighbor)
+          ) {
             move = path
             break
           } else {
-            move = getBestMove(you.head, board)
+            move = getBestMove(you, board)
           }
         }
       } else {
-        move = getBestMove(you.head, board)
+        move = getBestMove(you, board)
       }
     } else {
-      move = getBestMove(you.head, board)
+      move = getBestMove(you, board)
     }
 
     const response = {
